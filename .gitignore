@@ -1,2 +1,10 @@
 *.DS_Store
 
+tmux-continuum/
+tmux-resurrect/
+tmux-sensible/
+tmux-yank/
+tmux/
+tpm/
+
+
