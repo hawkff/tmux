@@ -7,9 +7,6 @@ My private config of tmux
 ```bash
 # Clone this repo
 git clone https://github.com/hawkff/tmux.git ~/.config/tmux
-
-# Start tmux - TPM and plugins will auto-install
-tmux
 ```
 
 After plugins install, create the symlink for the custom RAM script:
