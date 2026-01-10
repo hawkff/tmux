@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cross-platform script to display free/total RAM
+# Cross-platform script to display free/compressed/total RAM
 
 format_bytes() {
   local bytes=$1
@@ -15,20 +15,27 @@ case $(uname -s) in
   Linux)
     free_kb=$(awk '/^MemFree:/ {print $2}' /proc/meminfo)
     total_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+    # Linux doesn't have compressed memory in the same way, show cached instead
+    cached_kb=$(awk '/^Cached:/ {print $2}' /proc/meminfo)
     free=$(format_bytes $((free_kb * 1024)))
+    compressed=$(format_bytes $((cached_kb * 1024)))
     total=$(format_bytes $((total_kb * 1024)))
     ;;
   Darwin)
     pagesize=$(pagesize)
-    free_pages=$(vm_stat | awk '/Pages free:/ {gsub(/\./,"",$3); print $3}')
+    stats=$(vm_stat)
+    free_pages=$(echo "$stats" | awk '/Pages free:/ {gsub(/\./,"",$3); print $3}')
+    compressed_pages=$(echo "$stats" | awk '/Pages stored in compressor:/ {gsub(/\./,"",$5); print $5}')
     total_bytes=$(sysctl -n hw.memsize)
     free=$(format_bytes $((free_pages * pagesize)))
+    compressed=$(format_bytes $((compressed_pages * pagesize)))
     total=$(format_bytes "$total_bytes")
     ;;
   *)
     free="N/A"
+    compressed="N/A"
     total="N/A"
     ;;
 esac
 
-echo "RAM ${free}/${total}"
+echo "RAM ${free}/${compressed}/${total}"
