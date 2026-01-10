@@ -6,7 +6,7 @@ My private config of tmux
 
 ```bash
 # Clone this repo
-git clone <repo-url> ~/.config/tmux
+git clone https://github.com/hawkff/tmux.git ~/.config/tmux
 
 # Start tmux - TPM and plugins will auto-install
 tmux
