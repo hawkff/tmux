@@ -5,7 +5,6 @@ My private config of tmux
 ## Installation
 
 ```bash
-# Clone this repo
 git clone https://github.com/hawkff/tmux.git ~/.config/tmux
 ```
 
