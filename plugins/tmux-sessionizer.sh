@@ -2,39 +2,27 @@
 
 recent_dirs_file="$HOME/.recent_dirs"
 
-log_recent_dir() {
-    echo "$1" >> "$recent_dirs_file"
-}
-
-choose_recent_dir() {
-    cat "$recent_dirs_file" | tac | awk '!seen[$0]++' | fzf --height 40% --border
-}
-
 list_directories() {
-    local start_dir="$1"
-    find "$start_dir" -type d 2>/dev/null & # Run find in background
-    echo "Loading directories... (Press Ctrl-C to cancel)"
-    wait # Wait for find to complete
+    find "$1" -type d 2>/dev/null
 }
 
 choose_directory() {
     local PS3='Please select a directory: '
     local options=("Desktop" "Documents" "Downloads" "Recent Directories" "Enter a different path")
-    local home_path="$HOME"
     local choice
     local custom_path
 
     select opt in "${options[@]}"; do
         case $opt in
             "Desktop"|"Documents"|"Downloads")
-                choice=$(list_directories "$home_path/$opt" | fzf --height 40% --border || echo 'cancelled')
+                choice=$(list_directories "$HOME/$opt" | fzf --height 40% --border || echo 'cancelled')
                 ;;
             "Recent Directories")
-                choice=$(choose_recent_dir)
+                choice=$(tac "$recent_dirs_file" | awk '!seen[$0]++' | fzf --height 40% --border)
                 ;;
             "Enter a different path")
                 echo "Enter the full path (Tab for autocompletion):"
-                read -e -p "Path: " custom_path
+                read -r -e -p "Path: " custom_path
                 if [[ -d "$custom_path" ]]; then
                     choice=$(list_directories "$custom_path" | fzf --height 40% --border || echo 'cancelled')
                 else
@@ -65,7 +53,7 @@ if [[ -z $selected ]]; then
     exit 0
 fi
 
-log_recent_dir "$selected"
+printf '%s\n' "$selected" >> "$recent_dirs_file"
 
 selected_name=$(basename "$selected" | tr . _)
 tmux_running=$(pgrep tmux)
